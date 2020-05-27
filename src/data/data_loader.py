@@ -1,4 +1,5 @@
 import os, random, json
+from typing import List
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -105,21 +106,35 @@ def resize(image, new_shape):
     return reshaped_image
 
 def splitter(seed, split):
-    flist = os.listdir(BASE_PATH_NORMALIZED+'/images/')
-    fnumbers = []
-    # extract image numbers
-    for i in flist:
-        fnumbers.append(int(i[5:8]))
-    fnumbers.sort()
+    """ returns file ids for trainset and test set
 
+    Args:
+        seed (int): the seed for the random suffle
+        split (float): train/test split, first fraction is assigned to
+
+    """
+    flist = os.listdir(BASE_PATH_NORMALIZED+'/images/')
     # randomize using seed
     random.seed(seed)
-    random.shuffle(fnumbers)
+    random.shuffle(flist)
 
-    lfrac = int(len(fnumbers) * split)
-    trainfiles = fnumbers[:lfrac]
-    testfiles= fnumbers[lfrac:]
-    return trainfiles, testfiles
+    # split data in train test set
+    lfrac = int(len(flist) * split)
+    test_images = flist[:lfrac]
+    train_images = flist[lfrac:]
+
+    # split labels in train test set
+    llist = os.listdir(BASE_PATH)
+    # adjust label names
+    test_labels: List[str] = []
+    train_labels: List[str] = []
+    for i in test_images:
+        test_labels.append('verse' + i[:8]+'_ctd.json')
+    for i in train_images:
+        train_labels.append('verse' + i[:8]+'_ctd.json')
+
+
+    return train_images, test_images, test_labels, train_labels
 
 
 if __name__ == '__main__':
@@ -143,6 +158,8 @@ if __name__ == '__main__':
 
     IMAGES = glob(os.path.join(BASE_PATH_NORMALIZED, 'images/verse*.mha'))
     IMAGES_CTD = [path.replace('images/', 'centroid_masks/') for path in IMAGES]
+    # create train test sets
+    train_images, test_images, test_labels, train_labels = splitter(2020, 0.3)
 
     # create and plot heat map
     heatmap_size = sitk.ReadImage(SAMPLE_NORMALIZED_IMG).GetSize()
