@@ -23,7 +23,9 @@ def train_u_net(epochs, train_gen, val_gen, epochs):
     checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_best_only=True)
     # tensorboard stuff
     # TBD
-    callback_list = [checkpoint, earlystopper]
+    tensorboard = tf.keras.callbacks.TensorBoard(log_dir='logs',
+                                                 update_freq="epoch")
+    callback_list = [checkpoint, earlystopper, tensorboard]
 
     # TODO: make it possible to apply custom model name
     results = model.fit(train_gen,
