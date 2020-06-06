@@ -5,7 +5,7 @@ import tensorflow as tf
 
 # fit model
 def train_u_net(epochs, train_gen, val_gen, epochs):
-    weight_path = 'models/temp/model.h5' # TODO: needs change
+    weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5' # TODO: needs change
     optimizer = tf.keras.optimizers.Adam(lr=1E-3, beta_1=0.9, beta_2=0.999, epsilon=1E-08)
     u_model = model.U_net_3D_model()
     # TODO: optional use keras model loader
