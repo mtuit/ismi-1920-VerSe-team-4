@@ -56,7 +56,7 @@ def U_net_3D_model():
 
     # block 4
     x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
-    x = tf.keras.layers.concatenate([s3, x], axis=4) #was s3
+    x = tf.keras.layers.concatenate([s3, x], axis=4)
 
     x = tf.keras.layers.Conv3D(256, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()(x)
@@ -67,7 +67,7 @@ def U_net_3D_model():
     x = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     # block 5
-    x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
+    # x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
     x = tf.keras.layers.concatenate([s2, x], axis=4)
 
     x = tf.keras.layers.Conv3D(128, (3, 3, 3), padding="same")(x)
@@ -79,15 +79,15 @@ def U_net_3D_model():
     x = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     # block 6
-    x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
-    x = tf.keras.layers.concatenate([s1, x], axis=4) #was s2
+    # x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
+    x = tf.keras.layers.concatenate([s1, x], axis=4) # was s2
 
     x = tf.keras.layers.Conv3D(64, (3, 3, 3), padding="same")(x)
-    x = tf.keras.layers.BatchNormalization()
+    x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     x = tf.keras.layers.Conv3D(64, (3, 3, 3), padding="same")(x)
-    x = tf.keras.layers.BatchNormalization()
+    x = tf.keras.layers.BatchNormalization()(x)
     x = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     # output layer
