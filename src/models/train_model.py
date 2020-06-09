@@ -1,5 +1,5 @@
-import model
-from model import U_net_3D_model
+import src.models.model
+from src.models.model import U_net_3D_model
 import tensorflow as tf
 
 
@@ -7,7 +7,7 @@ import tensorflow as tf
 def train_u_net(train_gen, val_gen, epochs):
     weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5' # TODO: needs change
     optimizer = tf.keras.optimizers.Adam(lr=1E-3, beta_1=0.9, beta_2=0.999, epsilon=1E-08)
-    u_model = model.U_net_3D_model()
+    u_model = U_net_3D_model()
     # TODO: optional use keras model loader
     # model = tf.keras.models.load_model(model_path)
 
