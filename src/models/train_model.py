@@ -4,7 +4,7 @@ import tensorflow as tf
 
 
 # fit model
-def train_u_net(epochs, train_gen, val_gen, epochs):
+def train_u_net(train_gen, val_gen, epochs):
     weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5' # TODO: needs change
     optimizer = tf.keras.optimizers.Adam(lr=1E-3, beta_1=0.9, beta_2=0.999, epsilon=1E-08)
     u_model = model.U_net_3D_model()
@@ -12,9 +12,9 @@ def train_u_net(epochs, train_gen, val_gen, epochs):
     # model = tf.keras.models.load_model(model_path)
 
     # compile model
-    loss_fn = tf.keras.losses.mean_squared_error(y_pred=None, y_pred=None)
+    # loss_fn = tf.keras.losses.mean_squared_error(y_pred=None, y_pred=None)
     # TODO: make loss
-    u_model.compile(loss=loss_fn,
+    u_model.compile(#loss=loss_fn,
                   optimizer=optimizer)
                   # metrics=YOUR METRIC
 
