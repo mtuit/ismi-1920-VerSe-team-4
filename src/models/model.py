@@ -7,7 +7,6 @@ import tensorflow as tf
 
 
 def U_net_3D_model():
-    foo = tf.constant([-10, -5, 0.0, 53, 10], dtype=tf.float32)
     inputs = tf.keras.Input(shape=(None, 32, 64, 64))
 
     # block 1
@@ -17,6 +16,7 @@ def U_net_3D_model():
 
     x = tf.keras.layers.Conv3D(64, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()(x)
+    # shortcut to s1
     s1 = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     x = tf.keras.layers.MaxPooling3D(pool_size=(2, 2, 2))(s1)
@@ -28,6 +28,7 @@ def U_net_3D_model():
 
     x = tf.keras.layers.Conv3D(128, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()(x)
+    # shortcut to s2
     s2 = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     x = tf.keras.layers.MaxPooling3D(pool_size=(2, 2, 2))(s2)
@@ -39,6 +40,7 @@ def U_net_3D_model():
 
     x = tf.keras.layers.Conv3D(256, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()(x)
+    # shortcut to s3
     s3 = tf.keras.activations.relu(x, alpha=0.0, max_value=None, threshold=0)#(x)
 
     x = tf.keras.layers.MaxPooling3D(pool_size=(2, 2, 2))(s3)
@@ -54,7 +56,7 @@ def U_net_3D_model():
 
     # block 4
     x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
-    x = tf.keras.layers.concatenate([s3, x], axis=4)
+    x = tf.keras.layers.concatenate([s3, x], axis=4) #was s3
 
     x = tf.keras.layers.Conv3D(256, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()(x)
@@ -78,7 +80,7 @@ def U_net_3D_model():
 
     # block 6
     x = tf.keras.layers.UpSampling3D(size=(2, 2, 2))(x)
-    x = tf.keras.layers.concatenate([s2, x], axis=4)
+    x = tf.keras.layers.concatenate([s1, x], axis=4) #was s2
 
     x = tf.keras.layers.Conv3D(64, (3, 3, 3), padding="same")(x)
     x = tf.keras.layers.BatchNormalization()
