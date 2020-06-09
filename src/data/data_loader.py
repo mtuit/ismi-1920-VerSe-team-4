@@ -6,7 +6,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import scipy
-import preprocessing
+import src.data.preprocessing
 import itertools
 
 # import model stuff
@@ -303,8 +303,7 @@ if __name__ == '__main__':
     training_ds = training_dataset.batch(4)
     training_ds = training_dataset.batch(4)
 
-    train_u_net(training_dataset, validation_dataset, 5 )
-
+    train_u_net(training_dataset, validation_dataset, 5)
 
     print("--DONE--")
 
