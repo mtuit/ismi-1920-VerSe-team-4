@@ -1,28 +1,33 @@
-import model
-
-import numpy as np
+from src.models.model import U_net_3D_model
 import tensorflow as tf
 
-from tensorflow import keras
 
+# fit model
+def train_u_net(train_gen, val_gen, epochs):
+    weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5'  # TODO: needs change
+    optimizer = tf.keras.optimizers.Adam(lr=1E-3, beta_1=0.9, beta_2=0.999, epsilon=1E-08)
+    u_model = U_net_3D_model()
+    # TODO: optional use keras model loader
+    # model = tf.keras.models.load_model(model_path)
 
-def train(model, train_dataset, validation_dataset, callbacks=callbacks, epochs=10):
-    history = model.fit(x=train_dataset, epochs=epochs, callbacks=callbacks, validation_data=validation_dataset)
+    # compile model
+    # loss_fn = tf.keras.losses.mean_squared_error(y_pred=None, y_pred=None)
+    # TODO: make loss
+    u_model.compile(  # loss=loss_fn,
+        optimizer=optimizer)
+    # metrics=YOUR METRIC
 
-    # model.fit(train_dataset, epochs=, validation_data=validation_dataset)
+    # create callback list
+    earlystopper = tf.keras.callbacks.EarlyStopping(patience=10, verbose=1)
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_best_only=True)
+    # tensorboard stuff
+    # TBD
+    tensorboard = tf.keras.callbacks.TensorBoard(log_dir='logs',
+                                                 update_freq="epoch")
+    callback_list = [checkpoint, earlystopper, tensorboard]
 
-    pass
-
-if __name__ == "__main__":
-    model_save_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5'
-
-    model = model.get_model() # Later kan hier een model ingeladen worden via keras model_load() functionaliteit
-    train_dataset = None # TODO insert datasets here
-    validation_dataset = None # TODO insert datasets here
-    epochs = 10
-    
-    model_check_point = keras.callbacks.ModelCheckPoint(model_save_path, monitor='val_loss')
-    early_callback = keras.callbacks.EarlyStopping(monitor='val_loss', patience=3)
-
-    callbacks = [model_check_point, ]
-    train(model=model, train_dataset=train_dataset, validation_dataset=validation_dataset, callback=callbacks, epochs=epochs)
+    # TODO: make it possible to apply custom model name
+    results = u_model.fit(train_gen,
+                          epochs=epochs,
+                          validation_data=val_gen,
+                          callbacks=callback_list)
