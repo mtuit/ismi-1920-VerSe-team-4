@@ -4,8 +4,8 @@ import numpy as np
 from tensorflow import keras
 
 
-def get_model(loss=keras.loss.MeanSquaredError(), optimizer=keras.optimizers.Adam(), metrics=keras.metrics.MeanSquaredError()):
-    model = U_net_3D_model()
+def get_model(input_shape, loss=keras.loss.MeanSquaredError(), optimizer=keras.optimizers.Adam(), metrics=keras.metrics.MeanSquaredError()):
+    model = U_net_3D_model(input_shape=input_shape)
     return model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
 
 def U_net_3D_model(input_shape=(None, 32, 64, 64)):
