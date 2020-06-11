@@ -6,8 +6,9 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import SimpleITK as sitk
 import scipy
-import src.data.preprocessing
+from src.data.preprocessing import resize
 import itertools
+from skimage import transform
 
 # import model stuff
 from src.models.train_model import train_u_net
@@ -68,11 +69,11 @@ class VerseDataset():
 
             itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
             itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-            itk_img_arr_resize = preprocessing.resize(itk_img_arr, (128, 64, 64))
+            itk_img_arr_resize = resize(itk_img_arr, (128, 64, 64))
 
             # could be that when the array is resized, values change
             # if this happens, we should take another approach
-            itk_centroid_arr_resize = preprocessing.resize(itk_centroid_arr, (128, 64, 64))
+            itk_centroid_arr_resize = resize(itk_centroid_arr, (128, 64, 64))
             heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
 
             yield (itk_img_arr_resize, heatmap)
@@ -190,12 +191,14 @@ def training_data_generator():
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-        itk_img_arr_resize = preprocessing.resize(itk_img_arr, (128, 64, 64))
+        itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))
 
         # could be that when the array is resized, values change
         # if this happens, we should take another approach
-        itk_centroid_arr_resize = preprocessing.resize(itk_centroid_arr, (128, 64, 64))
+        itk_centroid_arr_resize = transform.resize(itk_centroid_arr, (128, 64, 64))
+
         heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
+        heatmap = np.moveaxis(heatmap, 0, -1)
 
         yield (itk_img_arr_resize, heatmap)
 
@@ -210,12 +213,13 @@ def general_data_generator(purpose_data):
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-        itk_img_arr_resize = preprocessing.resize(itk_img_arr, (128, 64, 64))
+        itk_img_arr_resize = resize(itk_img_arr, (128, 64, 64))
 
         # could be that when the array is resized, values change
         # if this happens, we should take another approach
-        itk_centroid_arr_resize = preprocessing.resize(itk_centroid_arr, (128, 64, 64))
+        itk_centroid_arr_resize = resize(itk_centroid_arr, (128, 64, 64))
         heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
+        heatmap = np.moveaxis(heatmap, 0, -1)
 
         yield (itk_img_arr_resize, heatmap)
 
@@ -235,12 +239,13 @@ def validation_data_generator():
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-        itk_img_arr_resize = preprocessing.resize(itk_img_arr, (128, 64, 64))
+        itk_img_arr_resize = resize(itk_img_arr, (128, 64, 64))
 
         # could be that when the array is resized, values change
         # if this happens, we should take another approach
-        itk_centroid_arr_resize = preprocessing.resize(itk_centroid_arr, (128, 64, 64))
+        itk_centroid_arr_resize = resize(itk_centroid_arr, (128, 64, 64))
         heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
+        heatmap = np.moveaxis(heatmap, 0, -1)
         yield (itk_img_arr_resize, heatmap)
 
 
@@ -259,12 +264,13 @@ def testing_data_generator():
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-        itk_img_arr_resize = preprocessing.resize(itk_img_arr, (128, 64, 64))
+        itk_img_arr_resize = resize(itk_img_arr, (128, 64, 64))
 
         # could be that when the array is resized, values change
         # if this happens, we should take another approach
-        itk_centroid_arr_resize = preprocessing.resize(itk_centroid_arr, (128, 64, 64))
+        itk_centroid_arr_resize = resize(itk_centroid_arr, (128, 64, 64))
         heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
+        heatmap = np.moveaxis(heatmap, 0, -1)
         yield (itk_img_arr_resize, heatmap)
 
 
@@ -279,7 +285,7 @@ def get_dataset_from_generator(data_generator):
     return tf.data.Dataset.from_generator(
         data_generator,
         (tf.float64, tf.int32),
-        (tf.TensorShape([128, 64, 64]), tf.TensorShape([25, 128, 64, 64])))
+        (tf.TensorShape([128, 64, 64]), tf.TensorShape([128, 64, 64, 25])))
 
 
 if __name__ == '__main__':
@@ -292,7 +298,7 @@ if __name__ == '__main__':
     print('Generating train validation test split....')
 
     generate_train_validation_test_split(2020, split)
-    versedataset = VerseDataset(2020, split)
+    # versedataset = VerseDataset(2020, split)
 
     # pseudocode oude manier:
     training_dataset = get_dataset_from_generator(training_data_generator)
@@ -300,8 +306,8 @@ if __name__ == '__main__':
     testing_dataset = get_dataset_from_generator(testing_data_generator)
 
     # call the model
-    training_ds = training_dataset.batch(4)
-    training_ds = training_dataset.batch(4)
+    training_dataset = training_dataset.batch(4)
+    validation_dataset = validation_dataset.batch(4)
 
     train_u_net(training_dataset, validation_dataset, 5)
 
