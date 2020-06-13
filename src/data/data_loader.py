@@ -154,9 +154,13 @@ def load_txt_to_nparray(path):
 """
 
 
-def generate_heatmap(centroid_array, sigma):
+def generate_heatmap(centroid_array, sigma, debug=False):
     heatmap = []
     number_of_vertebrae = 25
+
+    if debug:
+        print(f'Generating heatmaps of vertebraes...')
+    
     for i in range(1, number_of_vertebrae + 1):
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
 
@@ -171,7 +175,8 @@ def generate_heatmap(centroid_array, sigma):
         # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
         filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same")
         heatmap.append(filtered)
-    return heatmap
+        
+    return np.array(heatmap)
 
 
 """
@@ -197,7 +202,7 @@ def training_data_generator():
         # if this happens, we should take another approach
         itk_centroid_arr_resize = transform.resize(itk_centroid_arr, (128, 64, 64))
 
-        heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0)
+        heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0, debug=True)
         heatmap = np.moveaxis(heatmap, 0, -1)
 
         yield (itk_img_arr_resize, heatmap)
@@ -293,34 +298,33 @@ if __name__ == '__main__':
     BASE_PATH_NORMALIZED = 'data/processed/normalized-images'
     os.chdir('../..')
 
-    # split = float(input("Input train/test split ratio. First fraction is assigned to train set. Input as float number."))
     split = 0.8
-    print('Generating train validation test split....')
-
-    generate_train_validation_test_split(2020, split)
-    # versedataset = VerseDataset(2020, split)
+    # print('Generating train validation test split....')
+    # generate_train_validation_test_split(2020, split)
+    
+    versedataset = VerseDataset(2020, split)
 
     # pseudocode oude manier:
-    training_dataset = get_dataset_from_generator(training_data_generator)
-    validation_dataset = get_dataset_from_generator(validation_data_generator)
-    testing_dataset = get_dataset_from_generator(testing_data_generator)
-
-    # call the model
-    training_dataset = training_dataset.batch(4)
-    validation_dataset = validation_dataset.batch(4)
-
-    train_u_net(training_dataset, validation_dataset, 5)
-
-    print("--DONE--")
+    # training_dataset = get_dataset_from_generator(training_data_generator)
+    # validation_dataset = get_dataset_from_generator(validation_data_generator)
+    # testing_dataset = get_dataset_from_generator(testing_data_generator)
+    #
+    # # call the model
+    # training_dataset = training_dataset.batch(1)
+    # validation_dataset = validation_dataset.batch(1)
+    #
+    # train_u_net(training_dataset, validation_dataset, 5)
+    #
+    # print("--DONE--")
 
     # pseudocode with class:
     # DEBUG, want itertools laten werken met een class instance is nog niet zo evident
-    # tst = training_data_generator()
-    # tst_cls =versedataset.get_data_gen('train')
-    # dfg = tf.data.Dataset.from_generator(versedataset.get_data_gen('train'),
-    #                                      (tf.float64, tf.int32),
-    #                                      tf.TensorShape([128, 64, 64]), tf.TensorShape([25, 128, 64, 64]))
+    tst = training_data_generator()
+    tst_cls = versedataset.get_data_gen('train')
+    dfg = tf.data.Dataset.from_generator(versedataset.get_data_gen('train'),
+                                         (tf.float64, tf.int32),
+                                         tf.TensorShape([128, 64, 64]), tf.TensorShape([25, 128, 64, 64]))
 
-    # training_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('train'))
-    # validation_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('validation'))
-    # testing_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('test'))
+    training_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('train'))
+    validation_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('validation'))
+    testing_dataset_v = get_dataset_from_generator(versedataset.get_data_gen('test'))
