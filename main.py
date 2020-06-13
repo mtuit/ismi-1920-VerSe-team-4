@@ -1,6 +1,7 @@
 import argparse
 import os
-from src.data.data_loader import generate_train_validation_test_split, get_dataset_from_generator
+from src.data.data_loader import generate_train_validation_test_split, get_dataset_from_generator, \
+    testing_data_generator, validation_data_generator, training_data_generator
 from datetime import datetime
 
 from src.models.train_model import train_u_net
@@ -38,7 +39,6 @@ if __name__ == '__main__':
     # set paths
     BASE_PATH = 'data/raw/training_data'
     BASE_PATH_NORMALIZED = 'data/processed/normalized-images'
-    os.chdir('../..')
 
     # generate training and validation data
     generate_train_validation_test_split(args.seed, args.fraction)
@@ -52,9 +52,10 @@ if __name__ == '__main__':
     testing_dataset = get_dataset_from_generator(testing_data_generator)
 
     # call the model
-    training_dataset = training_dataset.batch(4)
-    validation_dataset = validation_dataset.batch(4)
+    training_dataset = training_dataset.batch(1)
+    validation_dataset = validation_dataset.batch(1)
 
-    train_u_net(training_dataset, validation_dataset, 5)
+    train_u_net(training_dataset, validation_dataset, 1)
+    # train_u_net(training_dataset, validation_dataset, args.epoch)
 
     print("--DONE--")
