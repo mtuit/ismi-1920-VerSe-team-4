@@ -6,14 +6,16 @@ import scipy
 
 from scipy import signal
 
-
 def get_centroids_of_image(image_path):
     """
     Gets the centroid locations of vertebrae from a centroids mask
+
     Args:
         image_path (str): Path to the centroids mask.
+
     Returns:
         A dictionary containing labels as keys and a dictionary of coordinates as values in the following format:
+
         {
             1: {
                 'x': 0,
@@ -49,6 +51,7 @@ def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
         heatmap_size (tuple): The size of the image.
         centroids (dict): Dict containing all the centroid locations [x, y, z] in the corresponding heatmap.
         sigma (float): Sigma value used in by the Gaussian Kernel.
+
     Returns:
         A numpy.ndarray containing heatmaps of centroids with same dimension as heatmap_size.
     """
@@ -78,9 +81,12 @@ def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
 def resize(image, new_shape):
     """
     Resize an image to desired new size.
+
+
     Args:
         image (numpy.ndarray): Image array .
         new_shape (tuple): Shape to which the image array should be resized.
+
     Returns:
         A resized numpy.ndarray of the original image.
     """
@@ -94,4 +100,3 @@ def resize(image, new_shape):
     reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
 
     return reshaped_image
-
