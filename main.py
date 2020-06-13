@@ -26,8 +26,8 @@ def handle_arguments():
 
     # parse and print arguments
     args = parser.parse_args()
-    for arg in vars(args):
-        print(f'{arg.upper()}: {getattr(args, arg)}')
+    #for arg in vars(args):
+        #print(f'{arg.upper()}: {getattr(args, arg)}')
 
     return args
 

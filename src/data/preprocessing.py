@@ -5,6 +5,7 @@ import SimpleITK as sitk
 import scipy
 
 from scipy import signal
+from skimage.transform import rescale, resize, downscale_local_mean
 
 def get_centroids_of_image(image_path):
     """
@@ -78,7 +79,7 @@ def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
     return heatmap
 
 
-def resize(image, new_shape):
+def myresize(image, new_shape):
     """
     Resize an image to desired new size.
 
@@ -90,13 +91,20 @@ def resize(image, new_shape):
     Returns:
         A resized numpy.ndarray of the original image.
     """
+    
+    # old:
+    #assert (image.ndim == len(new_shape))
 
-    assert (image.ndim == len(new_shape))
+    #x = np.random.randint(0, image.shape[0] - new_shape[0])
+    #y = np.random.randint(0, image.shape[1] - new_shape[1])
+    #z = np.random.randint(0, image.shape[2] - new_shape[2])
 
-    x = np.random.randint(0, image.shape[0] - new_shape[0])
-    y = np.random.randint(0, image.shape[1] - new_shape[1])
-    z = np.random.randint(0, image.shape[2] - new_shape[2])
+    #reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
 
-    reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
-
-    return reshaped_image
+    # new:
+    new = resize(image, new_shape)
+    
+    
+    
+    
+    return new

@@ -164,7 +164,7 @@ def generate_heatmap(centroid_array, sigma, debug=False):
     
     for i in range(1, number_of_vertebrae + 1):
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
-
+        print("Generating heatmaps of vertebra".format(i))
         x = np.arange(sigma * -2.5, sigma * 3, 1)
         y = np.arange(sigma * -2.5, sigma * 3, 1)
         z = np.arange(sigma * -2.5, sigma * 3, 1)
@@ -176,7 +176,8 @@ def generate_heatmap(centroid_array, sigma, debug=False):
         # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
         filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same")
         heatmap.append(filtered)
-        
+       
+    print(f'Return 25 heatmaps')
     return np.array(heatmap)
 
 

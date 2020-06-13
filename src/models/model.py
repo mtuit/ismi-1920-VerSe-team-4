@@ -1,9 +1,9 @@
 import tensorflow as tf
 
 
-def get_model(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(), metrics=tf.keras.metrics.MeanSquaredError()):
+def get_model(loss=tf.keras.losses.MeanSquaredError(), optimizer=tf.keras.optimizers.Adam(), metrics=[tf.keras.metrics.MeanSquaredError()]):
     model = unet3D_model()
-    model.compile(loss=loss, optimizer=optimizer, metrics=metrics)
+    model.compile(loss=loss, optimizer=optimizer, metrics=[metrics])
     return model
 
 
