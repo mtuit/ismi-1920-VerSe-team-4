@@ -110,8 +110,9 @@ def generate_train_validation_test_split(seed, split):
     """
 
     # Get a list of all images and centroids
-    images = os.listdir(os.path.join(BASE_PATH_NORMALIZED, 'images'))
-    centroids = os.listdir(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'))
+    path = 'data/processed/normalized-images'
+    images = os.listdir(os.path.join(path, 'images'))
+    centroids = os.listdir(os.path.join(path, 'centroid_masks'))
 
     # Randomize using seed
     random.seed(seed)
@@ -188,11 +189,12 @@ def generate_heatmap(centroid_array, sigma, debug=False):
 # obso
 def training_data_generator():
     data = load_txt_to_nparray('data/processed/train.txt')
+    source_path = 'data/processed/normalized-images'
     for i in itertools.count(1):
         path = random.sample(data, 1)
 
-        itk_img = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'images'), path[0]))
-        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'), path[0]))
+        itk_img = sitk.ReadImage(os.path.join(os.path.join(source_path, 'images'), path[0]))
+        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(source_path, 'centroid_masks'), path[0]))
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
@@ -238,9 +240,10 @@ def general_data_generator(purpose_data):
 # obso
 def validation_data_generator():
     data = load_txt_to_nparray('data/processed/validation.txt')
+    source_path = 'data/processed/normalized-images'
     for v in data:
-        itk_img = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'images'), v))
-        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'), v))
+        itk_img = sitk.ReadImage(os.path.join(os.path.join(source_path, 'images'), v))
+        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(source_path, 'centroid_masks'), v))
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
@@ -263,9 +266,10 @@ def validation_data_generator():
 # obso
 def testing_data_generator():
     data = load_txt_to_nparray('data/processed/test.txt')
+    source_path = 'data/processed/normalized-images'
     for v in data:
-        itk_img = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'images'), v))
-        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'), v))
+        itk_img = sitk.ReadImage(os.path.join(os.path.join(source_path, 'images'), v))
+        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(source_path, 'centroid_masks'), v))
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
