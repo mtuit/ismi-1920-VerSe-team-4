@@ -47,7 +47,6 @@ def get_centroids_of_image(image_path):
 def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
     """
     Generates a heatmap images in the corresponding dimensions with regard to centroids using a Gaussian kernel.
-
     Args:
         heatmap_size (tuple): The size of the image.
         centroids (dict): Dict containing all the centroid locations [x, y, z] in the corresponding heatmap.
@@ -82,6 +81,7 @@ def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
 def resize(image, new_shape):
     """
     Resize an image to desired new size.
+
 
     Args:
         image (numpy.ndarray): Image array .
