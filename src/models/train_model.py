@@ -16,7 +16,6 @@ def train_u_net(train_gen, val_gen, epochs):
     # TODO: make it possible to apply custom model name
     results = u_model.fit(train_gen,
                           epochs=epochs,
-                          steps_per_epoch=1,
                           validation_data=val_gen,
                           validation_steps=1,
                           callbacks=callback_list,
