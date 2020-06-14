@@ -1,6 +1,6 @@
 # User-Ignores
 data/raw
-logs/
+logs/train
 data/processed
 # Byte-compiled / optimized / DLL files
 __pycache__/
