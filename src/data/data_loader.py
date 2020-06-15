@@ -161,23 +161,30 @@ def generate_heatmap(centroid_array, sigma, debug=False):
 
     if debug:
         print(f'Generating heatmaps of vertebraes...')
-    
     for i in range(1, number_of_vertebrae + 1):
+        if debug:
+            print("Generating heatmaps of vertebra ".format(i))
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
-        print("Generating heatmaps of vertebra".format(i))
-        x = np.arange(sigma * -2.5, sigma * 3, 1)
-        y = np.arange(sigma * -2.5, sigma * 3, 1)
-        z = np.arange(sigma * -2.5, sigma * 3, 1)
-
-        xx, yy, zz = np.meshgrid(x, y, z)
-
-        kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * sigma ** 2))
-
-        # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
-        filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same")
-        heatmap.append(filtered)
-       
-    print(f'Return 25 heatmaps')
+        
+        # if no centroid found just return an empty array (to prevent unneccesary computations):
+        if (np.max(centroid_array_one_hot) < 0.01):
+            heatmap.append(np.zeros((128, 64, 64)))
+        else:         
+            x = np.arange(sigma * -2.5, sigma * 3, 1)
+            y = np.arange(sigma * -2.5, sigma * 3, 1)
+            z = np.arange(sigma * -2.5, sigma * 3, 1)
+            xx, yy, zz = np.meshgrid(x, y, z)
+            kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * sigma ** 2))
+            # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
+            # duurt lang!!!!!!!:
+            location = np.argmax(centroid_array_one_hot)
+            filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same") 
+            # duurt lang!!!!!!!:
+            filtered_resize = transform.resize(filtered, (128, 64, 64))
+            heatmap.append(filtered_resize)
+      
+    if debug:
+        print(f'Return 25 heatmaps')
     return np.array(heatmap)
 
 
@@ -199,13 +206,9 @@ def training_data_generator():
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-        itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))
+        itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))        
 
-        # could be that when the array is resized, values change
-        # if this happens, we should take another approach
-        itk_centroid_arr_resize = transform.resize(itk_centroid_arr, (128, 64, 64))
-
-        heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0, debug=True)
+        heatmap = generate_heatmap(itk_centroid_arr, 3.0, debug=True)
         heatmap = np.moveaxis(heatmap, 0, -1)
 
         yield (itk_img_arr_resize, heatmap)
