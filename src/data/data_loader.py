@@ -9,7 +9,7 @@ import scipy
 from src.data.preprocessing import resize
 import itertools
 from skimage import transform
-
+from   tqdm.autonotebook import import tqdm
 # import model stuff
 from src.models.train_model import train_u_net
 
@@ -161,8 +161,9 @@ def generate_heatmap(centroid_array, sigma, debug=False):
 
     if debug:
         print(f'Generating heatmaps of vertebraes...')
-    for i in range(1, number_of_vertebrae + 1):
-        if debug:
+    # for i in range(1, number_of_vertebrae + 1):
+    for i in tqdm(1, number_of_vertebrae + 1):
+            if debug:
             print("Generating heatmaps of vertebra ".format(i))
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
         
