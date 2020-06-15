@@ -185,6 +185,8 @@ def generate_heatmap(centroid_array, sigma, debug=False):
       
     if debug:
         print(f'Return 25 heatmaps')
+
+    return np.array(heatmap)
 """ =============== afkomstig uit merge, ik vermoed dat dit oud is, graag weghalen indien correct   
     for i in range(1, number_of_vertebrae + 1):
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
@@ -203,7 +205,6 @@ def generate_heatmap(centroid_array, sigma, debug=False):
         
 >>>>>>> bec03efd658ad9e9ad8f85bcaac8c46123ee4344
 """
-    return np.array(heatmap)
 
 
 """
@@ -224,11 +225,11 @@ def training_data_generator():
 
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-<<<<<<< HEAD
-        itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))        
+# <<<<<<< HEAD
+        # itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))
 
-        heatmap = generate_heatmap(itk_centroid_arr, 3.0, debug=True)
-=======
+        # heatmap = generate_heatmap(itk_centroid_arr, 3.0, debug=True)
+# =======
         itk_img_arr_resize = transform.resize(itk_img_arr, (128, 64, 64))
 
         # could be that when the array is resized, values change
@@ -236,7 +237,7 @@ def training_data_generator():
         itk_centroid_arr_resize = transform.resize(itk_centroid_arr, (128, 64, 64))
 
         heatmap = generate_heatmap(itk_centroid_arr_resize, 3.0, debug=True)
->>>>>>> bec03efd658ad9e9ad8f85bcaac8c46123ee4344
+# >>>>>>> bec03efd658ad9e9ad8f85bcaac8c46123ee4344
         heatmap = np.moveaxis(heatmap, 0, -1)
 
         yield (itk_img_arr_resize, heatmap)

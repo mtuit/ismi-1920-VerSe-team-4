@@ -7,8 +7,8 @@ def train_u_net(train_gen, val_gen, epochs):
     u_model = get_model()
 
     earlystopper = tf.keras.callbacks.EarlyStopping(patience=10, verbose=1)
-    #checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_weights_only=True, save_best_only=True)
-    checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_best_only=True)
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_weights_only=True, save_best_only=True)
+    # checkpoint = tf.keras.callbacks.ModelCheckpoint(weight_path, verbose=1, save_best_only=True)
     tensorboard = tf.keras.callbacks.TensorBoard(log_dir='logs',
                                                  update_freq="epoch")
     
