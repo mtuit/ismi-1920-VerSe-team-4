@@ -116,9 +116,21 @@ def myresize(image, new_shape):
     #reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
 
     # new:
+""" ===== leftover from commit: remove if intended
     new = resize_padded(image, new_shape)
     
     
     
     
     return new
+"""
+
+    assert (image.ndim == len(new_shape))
+
+    x = np.random.randint(0, image.shape[0] - new_shape[0])
+    y = np.random.randint(0, image.shape[1] - new_shape[1])
+    z = np.random.randint(0, image.shape[2] - new_shape[2])
+
+    reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
+
+    return reshaped_image
