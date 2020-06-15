@@ -1,4 +1,5 @@
 import os, random, json
+import timeit
 from typing import List
 
 import numpy as np
@@ -9,7 +10,7 @@ import scipy
 from src.data.preprocessing import resize
 import itertools
 from skimage import transform
-from   tqdm.autonotebook import import tqdm
+
 # import model stuff
 from src.models.train_model import train_u_net
 
@@ -161,10 +162,11 @@ def generate_heatmap(centroid_array, sigma, debug=False):
 
     if debug:
         print(f'Generating heatmaps of vertebraes...')
-    # for i in range(1, number_of_vertebrae + 1):
-    for i in tqdm(1, number_of_vertebrae + 1):
-            if debug:
-            print("Generating heatmaps of vertebra ".format(i))
+    	start = timeit.timeit()
+    for i in range(1, number_of_vertebrae + 1):
+    # for i in tqdm(1, number_of_vertebrae + 1):
+        if debug:
+            print("Generating heatmaps of vertebra {}".format(i))
         centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
         
         # if no centroid found just return an empty array (to prevent unneccesary computations):
@@ -185,7 +187,8 @@ def generate_heatmap(centroid_array, sigma, debug=False):
             heatmap.append(filtered_resize)
       
     if debug:
-        print(f'Return 25 heatmaps')
+	end = timeit.timeit()
+        print(f'Return 25 heatmaps {}'.format(end - start)
 
     return np.array(heatmap)
 """ =============== afkomstig uit merge, ik vermoed dat dit oud is, graag weghalen indien correct   
