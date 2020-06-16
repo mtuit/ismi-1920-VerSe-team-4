@@ -1,82 +1,53 @@
-import os, random, json
-
 import numpy as np
 import SimpleITK as sitk
 import scipy
+import time
 
 from scipy import signal
-from skimage.transform import rescale, resize, downscale_local_mean
-
-def get_centroids_of_image(image_path):
-    """
-    Gets the centroid locations of vertebrae from a centroids mask
-
-    Args:
-        image_path (str): Path to the centroids mask.
-
-    Returns:
-        A dictionary containing labels as keys and a dictionary of coordinates as values in the following format:
-
-        {
-            1: {
-                'x': 0,
-                'y': 0,
-                'z': 0,
-            },
-        }
-    """
-
-    img_centroids_mask = sitk.ReadImage(image_path)
-    np_centroids_mask = sitk.GetArrayFromImage(img_centroids_mask)
-
-    # Value of voxels correspond to label numbers, therefore we retrieve all unique values in the mask
-    labels = np.unique(np_centroids_mask)
-
-    # We have to delete 0 values since these are padding and not centroid locations
-    labels_without_zeros = np.delete(labels, 0)
-
-    centroids = {}
-
-    for label in labels_without_zeros:
-        z, y, x = np.where(
-            np_centroids_mask == label)  # Axis are reversed when converting from sitk image to numpy array, therefore z, y, x
-        centroids[label] = {'x': x.item(), 'y': y.item(), 'z': z.item()}
-
-    return centroids
+from skimage.transform import resize
 
 
-def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
-    """
-    Generates a heatmap images in the corresponding dimensions with regard to centroids using a Gaussian kernel.
-    Args:
-        heatmap_size (tuple): The size of the image.
-        centroids (dict): Dict containing all the centroid locations [x, y, z] in the corresponding heatmap.
-        sigma (float): Sigma value used in by the Gaussian Kernel.
-
-    Returns:
-        A numpy.ndarray containing heatmaps of centroids with same dimension as heatmap_size.
-    """
-
-    heatmap = np.zeros(heatmap_size)
-
-    # Read all coordinates and change value in the heatmap to 1 in those locations
-    for label, coordinates in centroids.items():
-        x, y, z = coordinates['x'], coordinates['y'], coordinates['z']
-        heatmap[x, y, z] = 1
-
-    # Create Gaussian kernel
-    x = np.arange(sigma * -2.5, sigma * 3)
-    y = np.arange(sigma * -2.5, sigma * 3)
-    z = np.arange(sigma * -2.5, sigma * 3)
-
-    X, Y, Z = np.meshgrid(x, y, z)
-
-    gaussian_kernel = np.exp(-(X ** 2 + Y ** 2 + Z ** 2) / (2 * sigma ** 2))
-
-    # Convolve the Gaussian Kernel on the heatmap where 1 corresponds to centroid location, generating heatmaps
-    heatmap = scipy.signal.convolve(heatmap, gaussian_kernel, mode="same")
-
-    return heatmap
+def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=False):
+    heatmap = []
+    number_of_vertebrae = n_classes
+    
+    if debug:
+        print(f'Generating heatmaps of vertebraes...')
+        start = time.time()
+    
+    for i in range(1, number_of_vertebrae + 1):
+        # for i in tqdm(1, number_of_vertebrae + 1):
+        if debug:
+            print("Generating heatmaps of vertebra {}".format(i))
+        
+        centroid_array_one_hot = np.where(centroid_array == i, 1, 0)
+        
+        # if no centroid found just return an empty array (to prevent unneccesary computations):
+        if (np.max(centroid_array_one_hot) < 0.01):
+            if debug:
+                print('Adding empty heatmap!')
+            heatmap.append(np.zeros(heatmap_size))
+        else:
+            x = np.arange(sigma * -2.5, sigma * 3, 1)
+            y = np.arange(sigma * -2.5, sigma * 3, 1)
+            z = np.arange(sigma * -2.5, sigma * 3, 1)
+            
+            xx, yy, zz = np.meshgrid(x, y, z)
+            
+            kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * sigma ** 2))
+            # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
+            # duurt lang!!!!!!!:
+            location = np.argmax(centroid_array_one_hot)
+            filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same")
+            # duurt lang!!!!!!!:
+            filtered_resize = resize(filtered, heatmap_size)
+            heatmap.append(filtered_resize)
+    
+    if debug:
+        end = time.time()
+        print('Return 25 heatmaps {}'.format(end - start))
+    
+    return np.array(heatmap)
 
 def resize_padded(img, new_shape, fill_cval=0, order=1):
     ratio = np.min([n / i for n, i in zip(new_shape, img.shape)])

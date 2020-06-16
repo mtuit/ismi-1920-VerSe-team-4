@@ -20,7 +20,8 @@ def train_u_net(train_gen, val_gen, epochs):
                           validation_data=val_gen,
                           validation_steps=1,
                           callbacks=callback_list,
-                          verbose=1)
+                          verbose=1,
+                          steps_per_epoch=1)
     
     
 if __name__ == '__main__':

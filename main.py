@@ -47,15 +47,15 @@ if __name__ == '__main__':
     # TODO: if Keras does not do this automatically, implement it!
 
     # make datasets
-    training_dataset = get_dataset_from_generator(training_data_generator)
-    validation_dataset = get_dataset_from_generator(validation_data_generator)
-    testing_dataset = get_dataset_from_generator(testing_data_generator)
-
-    # call the model
-    training_dataset = training_dataset.batch(1)
-    validation_dataset = validation_dataset.batch(1)
-
-    train_u_net(training_dataset, validation_dataset, 1)
+    # training_dataset = get_dataset_from_generator(training_data_generator)
+    # validation_dataset = get_dataset_from_generator(validation_data_generator)
+    # testing_dataset = get_dataset_from_generator(testing_data_generator)
+    #
+    # # call the model
+    # training_dataset = training_dataset.batch(1)
+    # validation_dataset = validation_dataset.batch(1)
+    #
+    # train_u_net(training_dataset, validation_dataset, 1)
     # train_u_net(training_dataset, validation_dataset, args.epoch)
 
     print("--DONE--")
