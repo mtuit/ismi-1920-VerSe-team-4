@@ -5,6 +5,7 @@ import SimpleITK as sitk
 import scipy
 
 from scipy import signal
+from skimage.transform import rescale, resize, downscale_local_mean
 
 def get_centroids_of_image(image_path):
     """
@@ -77,8 +78,23 @@ def generate_heatmap_target(heatmap_size, centroids, sigma=3.0):
 
     return heatmap
 
+def resize_padded(img, new_shape, fill_cval=0, order=1):
+    ratio = np.min([n / i for n, i in zip(new_shape, img.shape)])
+    interm_shape = np.rint([s * ratio for s in img.shape]).astype(np.int)
+    interm_img = resize(img, interm_shape, order=order, cval=fill_cval)
 
-def resize(image, new_shape):
+    new_img = np.empty(new_shape, dtype=interm_img.dtype)
+    new_img.fill(fill_cval)
+
+    pad = [(n - s) >> 1 for n, s in zip(new_shape, interm_shape)]
+    new_img[[slice(p, -p, None) if 0 != p else slice(None, None, None) 
+             for p in pad]] = interm_img
+
+    return new_img
+
+
+def myresize(image, new_shape):
+
     """
     Resize an image to desired new size.
 
@@ -90,6 +106,25 @@ def resize(image, new_shape):
     Returns:
         A resized numpy.ndarray of the original image.
     """
+    
+    # old:
+    #assert (image.ndim == len(new_shape))
+
+    #x = np.random.randint(0, image.shape[0] - new_shape[0])
+    #y = np.random.randint(0, image.shape[1] - new_shape[1])
+    #z = np.random.randint(0, image.shape[2] - new_shape[2])
+
+    #reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
+
+    # new:
+    """ ===== leftover from commit: remove if intended
+    new = resize_padded(image, new_shape)
+    
+    
+    
+    
+    return new
+    """
 
     assert (image.ndim == len(new_shape))
 
@@ -98,5 +133,4 @@ def resize(image, new_shape):
     z = np.random.randint(0, image.shape[2] - new_shape[2])
 
     reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
-
     return reshaped_image
