@@ -1,8 +1,12 @@
 # User-Ignores
-data/raw
-logs/train
-data/processed
-models/temp
+
+data/raw/training_data/*.nii.gz
+data/raw/training_data/*_ctd.json
+
+data/processed/normalized-images/centroid_masks/*.mha
+data/processed/normalized-images/images/*.mha
+
+logs/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
