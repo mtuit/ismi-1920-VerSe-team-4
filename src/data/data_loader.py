@@ -17,35 +17,28 @@ class VerseDataset():
     Attributes:
     
     """
-    def __init__(self, shape=(128, 64, 64), n_classes=25, seed=2020, split=0.8):
+    def __init__(self, base_path, shape=(128, 64, 64), n_classes=25, seed=2020, split=0.8):
         """ initialize the dataset """
+        self.base_path = base_path
         self.input_shape = shape
         self.output_shape = shape + (n_classes,)
         self.n_classes = n_classes
+        self.split = split
+        self.seed = seed
         
         # Get a list of all images and centroids
-        self.images = os.listdir(os.path.join(BASE_PATH_NORMALIZED, 'images'))
-        self.centroids = os.listdir(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'))
+        self.images = os.listdir(os.path.join(self.base_path, 'images'))
+        self.centroids = os.listdir(os.path.join(self.base_path, 'centroid_masks'))
 
         # Randomize using seed
-        random.seed(seed)
+        random.seed(self.seed)
         random.shuffle(self.images)
         
         self.test = []
         self.filtered_images = []
+        self.train, self.validation, self.test = self._train_validation_test_split(self.images, self.centroids)
         
-        self.train, self.validation, self.test = self._train_validation_test_split(self.images, self.centroids, seed, split)
-        # split images in test and train/val set
-        for image in self.images:
-            if image not in self.centroids:
-                self.test.append(image)
-            else:
-                self.filtered_images.append(image)
 
-        # Generate train/validation split based on remaining images and centroids
-        self.train, self.validation = train_test_split(self.filtered_images, train_size=split, random_state=seed)
-    
-    
     def get_dataset(self, purpose):
         if purpose == 'train':
             return self._get_dataset_from_generator(self._get_train_generator)
@@ -88,8 +81,8 @@ class VerseDataset():
             
             
     def _generate_input_tuple(self, data_element):
-        itk_img = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'images'), data_element))
-        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(BASE_PATH_NORMALIZED, 'centroid_masks'), data_element))
+        itk_img = sitk.ReadImage(os.path.join(os.path.join(self.base_path, 'images'), data_element))
+        itk_centroid = sitk.ReadImage(os.path.join(os.path.join(self.base_path, 'centroid_masks'), data_element))
     
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
@@ -97,7 +90,7 @@ class VerseDataset():
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
         itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape)
     
-        heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=True)
+        heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
         heatmap = np.moveaxis(heatmap, 0, -1)
         
         return (itk_img_arr_resize, heatmap)
@@ -110,14 +103,12 @@ class VerseDataset():
             (tf.TensorShape(self.input_shape), tf.TensorShape(self.output_shape)))
         return dataset
 
-    def _train_validation_test_split(self, images, centroids, seed, split):
+    def _train_validation_test_split(self, images, centroids):
         """ Generates a train/validation/test split for the images
 
         Args:
             images (list): paths to images
             centroids (list): paths to centroid masks
-            seed (int): the seed for the random suffle
-            split (float): train/test split, first fraction is assigned to train set
         """
    
         # Get test images from images list. Test images are images for which a centroid mask does NOT exist
@@ -132,24 +123,22 @@ class VerseDataset():
                 filtered_images.append(image)
     
         # Generate train/validation split based on remaining images and centroids
-        train, validation = train_test_split(filtered_images, train_size=split, random_state=seed)
+        train, validation = train_test_split(filtered_images, train_size=self.split, random_state=self.seed)
     
         return train, validation, test
 
 
 if __name__ == '__main__':
+    # set paths
     BASE_PATH = 'data/raw/training_data'
     BASE_PATH_NORMALIZED = 'data/processed/normalized-images'
-    os.chdir('../..')
-
-    split = 0.8
-    # print('Generating train validation test split....')
-    # generate_train_validation_test_split(2020, split)
     
-    versedataset = VerseDataset()
-
-    # train_generator = versedataset.get_data_gen('train')
-    train_dataset = versedataset.get_dataset('train').batch(1)
-    validation_dataset = versedataset.get_dataset('validation').batch(1)
+    # generate training and validation data
+    verse_dataset = VerseDataset(base_path=BASE_PATH_NORMALIZED)
     
-    train_u_net(train_dataset, validation_dataset, 1)
+    training_dataset = verse_dataset.get_dataset('train')
+    validation_dataset = verse_dataset.get_dataset('validation')
+    
+    train_u_net(training_dataset, validation_dataset, 1)
+    
+    print("--DONE--")
