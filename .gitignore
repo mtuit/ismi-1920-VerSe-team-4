@@ -2,6 +2,7 @@
 
 data/raw/training_data/*.nii.gz
 data/raw/training_data/*_ctd.json
+data/raw/training_data/*_snapshot.png
 
 data/processed/normalized-images/centroid_masks/*.mha
 data/processed/normalized-images/images/*.mha
@@ -85,7 +86,6 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-/data/
 
 # Mac OS-specific storage files
 .DS_Store
