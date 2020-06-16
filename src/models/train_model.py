@@ -1,7 +1,7 @@
 from src.models.model import get_model
 import tensorflow as tf
 
-def train_u_net(train_gen, val_gen, epochs):
+def train_u_net(train_gen, val_gen, epochs, steps_per_epoch):
     weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5'  # TODO: needs change
     
     u_model = get_model()
@@ -18,4 +18,5 @@ def train_u_net(train_gen, val_gen, epochs):
                           epochs=epochs,
                           validation_data=val_gen,
                           callbacks=callback_list,
+                          steps_per_epoch=steps_per_epoch,
                           verbose=1)

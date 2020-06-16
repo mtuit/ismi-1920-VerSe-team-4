@@ -7,9 +7,11 @@ def handle_arguments():
     """Handles console arguments. 'python main.py --h' promts an overview
 
     :returns
-        epochs      = [int] number of iterations over the training data
-        frac split  = [float] train test split fraction
-        seed        = [int] seed for random operation...
+        epochs          = [int] number of iterations over the training data
+        frac split      = [float] train test split fraction
+        seed            = [int] seed for random operation...
+        batch_size      = [int] batch size for training
+        steps_per_epoch = [int] steps per epoch
     """
     # process the command options
     parser = argparse.ArgumentParser()
@@ -19,13 +21,10 @@ def handle_arguments():
                                                                           'of train test split, default 0.8')
     parser.add_argument('-s', '--seed', type=int, default=2020, help='seed '
                                                                      'to give to random function, default 2020')
-    parser.add_argument('-b', '--batch_size', type=int, default=32, help='batch size for training, default: 32')
+    parser.add_argument('-b', '--batch_size', type=int, default=8, help='batch size for training, default: 8')
+    parser.add_argument('-se', '--steps_per_epoch', type=int, default=50, help='steps per epoch for training, default: 50')
 
-    # parse and print arguments
     args = parser.parse_args()
-    #for arg in vars(args):
-        #print(f'{arg.upper()}: {getattr(args, arg)}')
-
     return args
 
 
@@ -43,6 +42,6 @@ if __name__ == '__main__':
     training_dataset = verse_dataset.get_dataset('train').batch(args.batch_size)
     validation_dataset = verse_dataset.get_dataset('validation').batch(args.batch_size)
 
-    train_u_net(training_dataset, validation_dataset, args.epochs)
+    train_u_net(training_dataset, validation_dataset, args.epochs, args.steps_per_epoch)
     
     print("--DONE--")
