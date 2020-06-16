@@ -162,7 +162,7 @@ def generate_heatmap(centroid_array, sigma, debug=False):
 
     if debug:
         print(f'Generating heatmaps of vertebraes...')
-    	start = timeit.timeit()
+        start = timeit.timeit()
     for i in range(1, number_of_vertebrae + 1):
     # for i in tqdm(1, number_of_vertebrae + 1):
         if debug:
@@ -187,8 +187,8 @@ def generate_heatmap(centroid_array, sigma, debug=False):
             heatmap.append(filtered_resize)
       
     if debug:
-	end = timeit.timeit()
-        print(f'Return 25 heatmaps {}'.format(end - start)
+        end = timeit.timeit()
+        print('Return 25 heatmaps {}'.format(end - start))
 
     return np.array(heatmap)
 """ =============== afkomstig uit merge, ik vermoed dat dit oud is, graag weghalen indien correct   
