@@ -4,7 +4,7 @@ import time
 
 from scipy import signal, ndimage, misc
 from skimage.transform import resize
-
+import copy
 
 def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=False):
     heatmap = []
@@ -47,6 +47,29 @@ def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=F
         print('Return 25 heatmaps {}'.format(end - start))
     
     return np.array(heatmap)
+
+# thresholding
+def thresh_lowering(x, thresh=0, thresh2=10000):
+    """ Changes all pixel values outside of the thresholds to 0
+    default settings are used in picture 2 as seen in whatsapp
+    picture 3 is the results of default settings minus thresh=800, thresh2=1600
+    """
+
+    x[x < thresh] = 0
+    x[x > thresh2] = 0
+
+    return x
+
+def thresh_lowering_minus(x, thresh1=(0, 10000), thresh2=(800, 1600)):
+    """ Changing one of the pics permanently does so, deepcopy is required to overcome this when
+    subtracting two different occasions of thresh_lowering on the same picture
+    default settings result into picture 3 as seen in whatsapp
+    """
+
+    x1 = copy.deepcopy(x)
+    x2 = copy.deepcopy(x)
+
+    return thresh_lowering(x1, thresh1[0], thresh1[1]) - thresh_lowering(x2, thresh2[0], thresh2[1])
 
 def resize_padded(img, new_shape, fill_cval=0, order=1):
     ratio = np.min([n / i for n, i in zip(new_shape, img.shape)])
