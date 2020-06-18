@@ -2,7 +2,7 @@ import numpy as np
 import scipy
 import time
 
-from scipy import signal
+from scipy import signal, ndimage, misc
 from skimage.transform import resize
 
 
@@ -104,3 +104,99 @@ def myresize(image, new_shape):
 
     reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
     return reshaped_image
+
+# not used yet
+def augment_flip(image):
+    """
+    Create an augmented image by mirroring in sagittal plane.
+
+    Args:
+        image (numpy.ndarray): Image array .
+
+    Returns:
+        A numpy.ndarray with first dimension (or x, sagittal) of the original image inverted.
+    """
+
+    flipped_image = np.flip(image, 0)
+
+    return flipped_image
+
+# not used yet
+def augment_rotate(image, axis, degrees):
+    """
+    Create a rotated image, the image corners are padded with values of the image edge
+
+    Args:
+        image (numpy.ndarray): Image array .
+        axis (int 1,2,3): Axis around which the image will be rotated (from center)
+        degrees (int): Amount of rotation in degrees (can be negative)
+
+    Returns:
+        An anticlockwise rotated numpy.ndarray of the original image
+    """
+
+    ax1 = (axis + 1) % 3
+    ax2 = (axis + 2) % 3
+
+    ## to do: how to pad
+    rotated_image = ndimage.rotate(image, degrees, axes=(ax1, ax2), reshape=False, mode='nearest')
+
+    return rotated_image
+
+# not used yet
+def augment_shift(image, ax, distance):
+    """
+    Create an image that is moved by some pixels, padding the empty side with edge values
+
+    Args:
+        image (numpy.ndarray): Image array .
+        ax (int 1,2,3): Axis along which the image will be shifted
+        distance (int): Amount of shift in pixels (can be negative)
+
+    Returns:
+        A shifted numpy.ndarray of the original image.
+    """
+
+    shape = np.shape(image)
+    dim_length = shape[ax]
+
+    assert (distance < dim_length)
+
+    rolled_image = np.roll(image, distance, axis=ax)
+
+    delete_start = 0
+    delete_end = distance
+
+    if (distance < 0):
+        delete_start = dim_length + distance
+        delete_end = dim_length
+
+    deletables = list(range(delete_start, delete_end))
+
+    cropped_image = np.delete(rolled_image, deletables, axis=ax)
+
+    pad0 = (0, 0)
+    pad1 = (0, 0)
+    pad2 = (0, 0)
+
+    if (ax == 0):
+        if (distance < 0):
+            pad0 = (0, -distance)
+        else:
+            pad0 = (distance, 0)
+    if (ax == 1):
+        if (distance < 0):
+            pad1 = (0, -distance)
+        else:
+            pad1 = (distance, 0)
+    if (ax == 2):
+        if (distance < 0):
+            pad2 = (0, -distance)
+        else:
+            pad2 = (distance, 0)
+
+    pad_loc = (pad0, pad1, pad2)
+
+    shifted_image = np.pad(cropped_image, pad_loc, 'edge')
+
+    return shifted_image
