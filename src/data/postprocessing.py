@@ -19,7 +19,7 @@ from skimage import transform
     This function visualizes the centroid mask (true) and the output heatmap (pred)
     Channels First on the output heatmap, path variable + extension
 """
-def visualize(path,prediction, threshold = 0.5):
+def visualize_graph(path,prediction, threshold = 0.5):
     itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/centroid_masks/", path))
     results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
@@ -33,6 +33,22 @@ def visualize(path,prediction, threshold = 0.5):
     ys_all = ys_lbl + ys_hmp
     zs_all = zs_lbl + zs_hmp
     _set_dims(ax,xs_all,ys_all,zs_all)
+    plt.show()
+
+def visualize(path,prediction, threshold = 0.5):
+    itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/images/", path))
+    results_true = np.array(sitk.GetArrayFromImage(itkimg1))
+    fig = plt.figure()
+    coords = _get_locations_output(prediction, results_true.shape, threshold = 0.5)
+    average = [a_tuple[2] for a_tuple in coords]
+    average = sum(average)/len(average)
+    locs = [(a_tuple[0],a_tuple[1]) for a_tuple in coords]
+    #x,y = zip(*locs)
+    for (x,y) in locs:
+        plt.scatter(y,x)
+    plt.imshow(results_true[:,:, int(average)])
+    
+    
     plt.show()
     
 
@@ -58,8 +74,8 @@ def distances(path, heatmaps, threshold = 0.5):
             dist = int(np.linalg.norm(np.array(coord_true) - np.array(coord_pred)))
             output += "\t dist: {}".format(dist)
         print(output)
-        
-        
+      
+
 
 """
     input is single heatmap
@@ -130,9 +146,6 @@ def _set_dims(ax, xs,ys,zs):
     ax.set_xlim(x_origin - margin, x_origin + margin)
     ax.set_ylim(y_origin - margin, y_origin + margin)
     ax.set_zlim(z_origin - margin, z_origin + margin)
-    
-
-
 
 if __name__ == '__main__':
     
@@ -141,8 +154,9 @@ if __name__ == '__main__':
     prediction = generate_heatmap(np.array(sitk.GetArrayFromImage(itkimg2)), (128,64,64), 25, debug=False) 
    
     # visualize input with prediction (example) (includes reshaping of prediction):
-    visualize("verse005.mha", prediction, threshold = 0.5)
-    distances("verse005.mha", prediction, threshold = 0.5)
+    #visualize_graph("verse005.mha", prediction, threshold = 0.5)
+    #distances("verse005.mha", prediction, threshold = 0.5)
+    visualize("verse007.mha", prediction, threshold = 0.5)
     
     
     
