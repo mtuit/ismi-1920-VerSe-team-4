@@ -35,11 +35,15 @@ def visualize_graph(path,prediction, threshold = 0.5):
     _set_dims(ax,xs_all,ys_all,zs_all)
     plt.show()
 
-def visualize(path,prediction, threshold = 0.5):
-    itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/images/", path))
-    results_true = np.array(sitk.GetArrayFromImage(itkimg1))
+
+"""
+Visualize the output from a model (batch size = 1)
+"""
+def visualize(results_true, prediction, threshold = 0.5):
+    #itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/images/", path))
+    #results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
-    coords = _get_locations_output(prediction, results_true.shape, threshold = 0.5)
+    coords = _get_locations_output(prediction[0], results_true.shape, threshold = 0.5)
     average = [a_tuple[2] for a_tuple in coords]
     average = sum(average)/len(average)
     locs = [(a_tuple[0],a_tuple[1]) for a_tuple in coords]
@@ -73,10 +77,7 @@ def distances(path, heatmaps, threshold = 0.5):
         if(coord_true is not None) and (coord_pred is not None):
             dist = int(np.linalg.norm(np.array(coord_true) - np.array(coord_pred)))
             output += "\t dist: {}".format(dist)
-        print(output)
       
-
-
 """
     input is single heatmap
     location is extracted with the argmax policy
@@ -84,8 +85,8 @@ def distances(path, heatmaps, threshold = 0.5):
 def _single_heatmap_to_loc(heatmap, goalshape):
     # upscaling of the image back to its original shape:
     heatmap_upscale = transform.resize(heatmap, goalshape)
-    return np.unravel_index(heatmap_upscale.argmax(), heatmap_upscale.shape)
-
+    x = np.unravel_index(heatmap_upscale.argmax(), heatmap_upscale.shape)
+    return x
 
 """
     input is 25-dim heatmap
@@ -93,8 +94,8 @@ def _single_heatmap_to_loc(heatmap, goalshape):
 """
 def _get_locations_output(heatmap, goalshape, threshold):
     locations = []
-    
-    for hm in heatmap:
+    #heatmap = np.swapaxes(heatmap, 0, -1)
+    for hm in np.rollaxis(heatmap, 3):
         if np.max(hm) > threshold:
             locations.append(_single_heatmap_to_loc(hm, goalshape))
     return locations

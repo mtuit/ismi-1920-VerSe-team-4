@@ -4,11 +4,12 @@ import numpy as np
 import tensorflow as tf
 import SimpleITK as sitk
 
-from src.models.train_model import train_u_net
+#from src.models.train_model import train_u_net
 from src.data.preprocessing import generate_heatmap
 
 from skimage import transform
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
 
 
 class VerseDataset():
@@ -55,24 +56,26 @@ class VerseDataset():
             Get a generator for the training set
         """
         for data_element in self.train:
+            print("training on: {}".format(data_element))
             image, heatmap = self._generate_input_tuple(data_element)
-            
+            print("yields: {}".format(data_element))
             yield (image, heatmap)
 
 
     def _get_validation_generator(self):
         """
-            Get a generator for the training set
+            Get a generator for the validation set
         """
-        for data_element in self.validation:
+        for data_element in self.validation[:2]:
+            print("validating on: {}".format(data_element))
             image, heatmap = self._generate_input_tuple(data_element)
-        
+            
             yield (image, heatmap)
 
 
     def _get_test_generator(self):
         """
-            Get a generator for the training set
+            Get a generator for the test set
         """
         for data_element in self.test:
             image, heatmap = self._generate_input_tuple(data_element)
@@ -86,7 +89,7 @@ class VerseDataset():
     
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
-    
+        
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
         itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape)
     
@@ -139,6 +142,6 @@ if __name__ == '__main__':
     training_dataset = verse_dataset.get_dataset('train')
     validation_dataset = verse_dataset.get_dataset('validation')
     
-    train_u_net(training_dataset, validation_dataset, 1)
+    #train_u_net(training_dataset, validation_dataset, 1)
     
     print("--DONE--")

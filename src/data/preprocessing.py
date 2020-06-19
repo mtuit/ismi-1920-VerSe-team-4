@@ -2,11 +2,12 @@ import numpy as np
 import scipy
 import time
 
-from scipy import signal, ndimage, misc
+from scipy import signal, ndimage, misc, stats
 from skimage.transform import resize
+import matplotlib.pyplot as plt
 
 
-def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=False):
+def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=20.0, debug=False):
     heatmap = []
     number_of_vertebrae = n_classes
     
@@ -27,19 +28,16 @@ def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=F
                 print('Adding empty heatmap!')
             heatmap.append(np.zeros(heatmap_size))
         else:
-            x = np.arange(sigma * -2.5, sigma * 3, 1)
-            y = np.arange(sigma * -2.5, sigma * 3, 1)
-            z = np.arange(sigma * -2.5, sigma * 3, 1)
+            location = np.unravel_index(centroid_array_one_hot.argmax(), centroid_array_one_hot.shape)
+            filtered = _loc_to_heatmap(centroid_array_one_hot.shape, location, sigma)
             
-            xx, yy, zz = np.meshgrid(x, y, z)
+            if debug:
+                fig= plt.figure()
+                plt.imshow(filtered[:,:,location[2]])
+                plt.show()
             
-            kernel = np.exp(-(xx ** 2 + yy ** 2 + zz ** 2) / (2 * sigma ** 2))
-            # convolve changes all the values of the heatmap (with tiny amounts) but most values should remain 0
-            # duurt lang!!!!!!!:
-            location = np.argmax(centroid_array_one_hot)
-            filtered = scipy.signal.convolve(centroid_array_one_hot, kernel, mode="same")
-            # duurt lang!!!!!!!:
             filtered_resize = resize(filtered, heatmap_size)
+            filtered_resize /= filtered_resize.max()
             heatmap.append(filtered_resize)
     
     if debug:
@@ -47,6 +45,23 @@ def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=3.0, debug=F
         print('Return 25 heatmaps {}'.format(end - start))
     
     return np.array(heatmap)
+
+def _loc_to_heatmap(goalshape, loc, sigma):
+    size = np.max(goalshape)/100
+    i,j,k = goalshape
+    x = np.linspace(0,i,i)
+    y = np.linspace(0,j,j)
+    z = np.linspace(0,k,k)
+    X, Y, Z = np.meshgrid(x,y,z)
+    pos = np.empty(X.shape + (3,))
+    pos[:, :, :, 0] = X
+    pos[:, :, :, 1] = Y
+    pos[:, :, :, 2] = Z
+    rv = stats.multivariate_normal(mean=loc, cov=sigma*size)
+    output = rv.pdf(pos)
+    output = np.swapaxes(output, 0, 1)
+    return output
+
 
 def resize_padded(img, new_shape, fill_cval=0, order=1):
     ratio = np.min([n / i for n, i in zip(new_shape, img.shape)])
