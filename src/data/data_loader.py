@@ -66,7 +66,7 @@ class VerseDataset():
         """
             Get a generator for the validation set
         """
-        for data_element in self.validation[:2]:
+        for data_element in self.validation:
             print("validating on: {}".format(data_element))
             image, heatmap = self._generate_input_tuple(data_element)
             
