@@ -91,7 +91,7 @@ class VerseDataset():
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
         
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
-        itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape)
+        itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape, mode='edge')
     
         heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
         heatmap = np.moveaxis(heatmap, 0, -1)
