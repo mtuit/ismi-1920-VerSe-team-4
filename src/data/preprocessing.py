@@ -132,7 +132,7 @@ def augment_flip(image):
         A numpy.ndarray with first dimension (or x, sagittal) of the original image inverted.
     """
 
-    flipped_image = np.flip(image, 0)
+    flipped_image = np.flip(image, 2)
 
     return flipped_image
 
@@ -215,3 +215,38 @@ def augment_shift(image, ax, distance):
     shifted_image = np.pad(cropped_image, pad_loc, 'edge')
 
     return shifted_image
+
+def augment_stretch(image, stretch_factors=(1,1,1)):
+    
+    """
+    Create an image that is stretched, and cropped to fit the same shape (e.g. zoomed)
+
+    Args:
+        image (numpy.ndarray): Image array .
+        stretch_factors (int tuple): Factors by which each dimension is stretched
+
+    Returns:
+        A stretched numpy.ndarray of the original image.
+    """
+    
+    assert((stretch_factors[0]>=1) & (stretch_factors[1]>=1) & (stretch_factors[2]>=1))
+    
+    
+    expanded_image = tr.rescale(image.astype(float), stretch_factors, mode='edge')
+    
+    shape = np.shape(image)
+    newshape = np.shape(expanded_image)
+    diff0 = newshape[0]-shape[0]
+    diff1 = newshape[1]-shape[1]
+    diff2 = newshape[2]-shape[2]
+    
+    
+    stretched_image = expanded_image[math.ceil(diff0/2):newshape[0]-math.floor(diff0/2),
+                                     math.ceil(diff1/2):newshape[1]-math.floor(diff1/2),
+                                     math.ceil(diff2/2):newshape[2]-math.floor(diff2/2)]
+    
+    print(shape,newshape,np.shape(stretched_image))
+    print(diff0,diff1,diff2)
+    assert(np.shape(stretched_image)==shape)
+    
+    return stretched_image
