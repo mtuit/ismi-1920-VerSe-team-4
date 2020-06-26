@@ -18,7 +18,7 @@ class VerseDataset():
     Attributes:
     
     """
-    def __init__(self, base_path, shape=(128, 64, 64), n_classes=25, seed=2020, split=0.8):
+    def __init__(self, base_path, shape=(128, 64, 64), n_classes=25, seed=2020, split=0.8, debug=False):
         """ initialize the dataset """
         self.base_path = base_path
         self.input_shape = shape
@@ -26,6 +26,7 @@ class VerseDataset():
         self.n_classes = n_classes
         self.split = split
         self.seed = seed
+        self.debug = debug
         
         # Get a list of all images and centroids
         self.images = os.listdir(os.path.join(self.base_path, 'images'))
@@ -55,11 +56,18 @@ class VerseDataset():
         """
             Get a generator for the training set
         """
-        for data_element in self.train:
-            print("training on: {}".format(data_element))
-            image, heatmap = self._generate_input_tuple(data_element)
-            print("yields: {}".format(data_element))
-            yield (image, heatmap)
+        while(True):
+            random.shuffle(self.train)
+            for data_element in self.train:
+                if self.debug: 
+                    print("training on: {}".format(data_element))
+
+                image, heatmap = self._generate_input_tuple(data_element)
+
+                if self.debug: 
+                    print("yields: {}".format(data_element))
+
+                yield (image, heatmap)
 
 
     def _get_validation_generator(self):
@@ -67,7 +75,9 @@ class VerseDataset():
             Get a generator for the validation set
         """
         for data_element in self.validation:
-            print("validating on: {}".format(data_element))
+            if self.debug: 
+                print("validating on: {}".format(data_element))
+                
             image, heatmap = self._generate_input_tuple(data_element)
             
             yield (image, heatmap)

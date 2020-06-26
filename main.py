@@ -22,8 +22,9 @@ def handle_arguments():
     parser.add_argument('-s', '--seed', type=int, default=2020, help='seed '
                                                                      'to give to random function, default 2020')
     parser.add_argument('-b', '--batch_size', type=int, default=8, help='batch size for training, default: 8')
-    parser.add_argument('-se', '--steps_per_epoch', type=int, default=50, help='steps per epoch for training, default: 50')
-
+    parser.add_argument('-se', '--steps_per_epoch', type=int, default=None, help='steps per epoch for training, default: None')
+    parser.add_argument('-d', '--debug', type=int, default=False, help='1 for debug mode, else leave empty, default: False')
+    
     args = parser.parse_args()
     return args
 
@@ -31,17 +32,24 @@ def handle_arguments():
 if __name__ == '__main__':
     # get console arguments
     args = handle_arguments()
-
+    
+    if (args.debug == 1):
+        debug = True
+    else: 
+        debug = False
+        
     # set paths
     BASE_PATH = 'data/raw/training_data'
     BASE_PATH_NORMALIZED = 'data/processed/normalized-images'
 
     # generate training and validation data
-    verse_dataset = VerseDataset(base_path=BASE_PATH_NORMALIZED, seed=args.seed, split=args.fraction)
+    verse_dataset = VerseDataset(base_path=BASE_PATH_NORMALIZED, seed=args.seed, split=args.fraction, debug=debug)
     
     training_dataset = verse_dataset.get_dataset('train').batch(args.batch_size)
     validation_dataset = verse_dataset.get_dataset('validation').batch(args.batch_size)
-
+    
+    
+        
     train_u_net(training_dataset, validation_dataset, args.epochs, args.steps_per_epoch)
     
     print("--DONE--")
