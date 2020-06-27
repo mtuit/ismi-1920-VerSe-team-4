@@ -9,7 +9,8 @@ from skimage import transform
     
 class PostprocessingCallback(tf.keras.callbacks.Callback):  
     
-    def __init__(self, validation_set, size = 2):
+    def __init__(self, validation_set, size=2):
+        super().__init__()
         self.my_validation_set = validation_set
         
     def on_epoch_end(self, epoch, logs={}):
