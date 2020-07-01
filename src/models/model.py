@@ -5,7 +5,6 @@ import tensorflow as tf
 def get_model(loss=keras.losses.MeanSquaredError(), optimizer=keras.optimizers.Adam(), metrics=[keras.metrics.MeanSquaredError()]):
     model = unet3D_model()
     model.compile(loss=loss, optimizer=optimizer, metrics=[metrics])
-    model.summary()
     return model
 
 

@@ -19,7 +19,7 @@ from skimage import transform
     This function visualizes the centroid mask (true) and the output heatmap (pred)
     Channels First on the output heatmap, path variable + extension
 """
-def visualize_graph(path,prediction, threshold = 0.5):
+def visualize_graph(path, prediction, threshold = 0.5):
     itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/centroid_masks/", path))
     results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
@@ -50,9 +50,8 @@ def visualize(results_true, prediction, threshold = 0.5):
     #x,y = zip(*locs)
     for (x,y) in locs:
         plt.scatter(y,x)
+        
     plt.imshow(results_true[:,:, int(average)])
-    
-    
     plt.show()
     
 
@@ -92,12 +91,18 @@ def _single_heatmap_to_loc(heatmap, goalshape):
     input is 25-dim heatmap
     returns list of predicted locations of vertebrae
 """
-def _get_locations_output(heatmap, goalshape, threshold):
+def _get_locations_output(heatmap, goalshape, threshold, return_labels=False):
     locations = []
-    #heatmap = np.swapaxes(heatmap, 0, -1)
-    for hm in np.rollaxis(heatmap, 3):
+    for index, hm in enumerate(np.rollaxis(heatmap, 3)):
         if np.max(hm) > threshold:
-            locations.append(_single_heatmap_to_loc(hm, goalshape))
+            # If we want to return the labels as well we have to add those to the tuple, incremented by 1
+            # since vertebrae's start at 1 and indexing at 0
+            if return_labels:
+                location = _single_heatmap_to_loc(hm, goalshape)
+                locations.append((index + 1, *location))
+            else:
+                locations.append(_single_heatmap_to_loc(hm, goalshape))
+                
     return locations
 
 """
