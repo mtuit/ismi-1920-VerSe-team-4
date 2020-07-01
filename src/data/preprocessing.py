@@ -4,6 +4,7 @@ import time
 
 from scipy import signal, ndimage, misc, stats
 from skimage.transform import resize
+from skimage.exposure import match_histograms
 import matplotlib.pyplot as plt
 
 
@@ -216,6 +217,14 @@ def augment_shift(image, ax, distance):
 
     return shifted_image
 
+def histogram_match(image, reference):
+    """
+    Performs histogram matching, the first picture (verse004.mha) seems to be a good reference
+    Output is the processed image
+    """
+    return match_histograms(image, reference, multichannel=False)
+
+  
 def augment_stretch(image, stretch_factors=(1,1,1)):
     
     """
