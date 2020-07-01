@@ -5,7 +5,7 @@ import tensorflow as tf
 import SimpleITK as sitk
 
 #from src.models.train_model import train_u_net
-from src.data.preprocessing import generate_heatmap
+from src.data.preprocessing import generate_heatmap, augment_stretch, augment_shift, augment_rotate, augment_flip
 
 from skimage import transform
 from sklearn.model_selection import train_test_split
@@ -100,14 +100,34 @@ class VerseDataset():
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
         
+        # the augmentation carousel
+        rot_range = 30
+        shift_range = 3
+        stretch_range = [0.3, 0.3, 0.3]
+        rand_rotate_angle = random.randint( -rot_range, rot_range)
+        rand_shift_distance = random.randint( -shift_range, shift_range)
+        for i, fac in enumerate(stretch_range):
+            my_fac = abs(round(fac * 10))
+            rand_factor = random.randint(-my_fac, my_fac)
+            stretch_range[i] = rand_factor
+
+
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
         itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape, mode='edge')
-    
+        itk_img_arr_aug = augment_rotate(itk_img_arr_resize, 0, rand_rotate_angle)
+        itk_img_arr_aug = augment_shift(itk_img_arr_aug, 0, rand_shift_distance)
+        itk_img_arr_aug = augment_stretch(itk_img_arr_aug, stretch_factors=stretch_range)
+
         heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
         heatmap = np.moveaxis(heatmap, 0, -1)
-        
-        return (itk_img_arr_resize, heatmap)
-        
+        # augment heatmap likewise
+        heatmap = augment_rotate(heatmap, 0, rand_rotate_angle)
+        heatmap = augment_shift(heatmap, 0, rand_shift_distance)
+        heatmap = augment_stretch(heatmap, stretch_factors=stretch_range)
+
+        # return (itk_img_arr_resize, heatmap)
+        return (itk_img_arr_aug, heatmap)
+
         
     def _get_dataset_from_generator(self, data_generator):
         dataset = tf.data.Dataset.from_generator(
