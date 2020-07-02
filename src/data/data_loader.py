@@ -5,7 +5,8 @@ import tensorflow as tf
 import SimpleITK as sitk
 
 #from src.models.train_model import train_u_net
-from src.data.preprocessing import generate_heatmap, histogram_match
+from src.data.preprocessing import generate_heatmap, augment_stretch, augment_shift, augment_rotate, augment_flip
+
 
 from skimage import transform
 from sklearn.model_selection import train_test_split
@@ -105,14 +106,43 @@ class VerseDataset():
 
         itk_hist_img = histogram_match(itk_img_arr, itk_ref_img_arr)
         
+        # the augmentation carrousel
+        apply_flip = random.choice([True, False])
+        rot_range = 30
+        shift_range = 30
+        stretch_range = [1.1, 1.5, 2]
+        rand_rotate_angle = random.randint( -rot_range, rot_range)
+        rand_shift_distance = random.randint( -shift_range, shift_range)
+        for i, fac in enumerate(stretch_range):
+            my_fac = random.randint( 0, round((fac - 1) * 10))/10
+            rand_factor = 1 + my_fac
+            stretch_range[i] = rand_factor
+        rand_axis_rotate = random.randint(0,2)
+        rand_axis_shift = random.randint(0,2)
+
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
+
+        itk_img_resize = transform.resize(itk_hist_img, self.input_shape, mode='edge')
+  
+        itk_img_aug = augment_flip(itk_img_resize, apply_flip)
+        itk_img_aug = augment_rotate(itk_img_aug, rand_axis_rotate, rand_rotate_angle)
+        itk_img_aug = augment_shift(itk_img_aug, rand_axis_shift, rand_shift_distance)
+        itk_img_aug = augment_stretch(itk_img_aug, stretch_factors=stretch_range)
+
         itk_img_arr_resize = transform.resize(itk_hist_img, self.input_shape, mode='edge')
     
         heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
+        # augment heatmap likewise
+        for i in range(self.n_classes):
+            heatmap[i] = augment_flip(heatmap[i], apply_flip)
+            heatmap[i] = augment_rotate(heatmap[i], rand_axis_rotate, rand_rotate_angle)
+            heatmap[i] = augment_shift(heatmap[i], rand_axis_shift, rand_shift_distance)
+            heatmap[i] = augment_stretch(heatmap[i], stretch_factors=stretch_range)
+
         heatmap = np.moveaxis(heatmap, 0, -1)
-        
-        return (itk_img_arr_resize, heatmap)
-        
+        # return (itk_img_arr_resize, heatmap)
+        return (itk_img_aug, heatmap)
+
         
     def _get_dataset_from_generator(self, data_generator):
         dataset = tf.data.Dataset.from_generator(
