@@ -100,7 +100,8 @@ class VerseDataset():
         itk_img_arr = np.array(sitk.GetArrayFromImage(itk_img))
         itk_centroid_arr = sitk.GetArrayFromImage(itk_centroid)
         
-        # the augmentation carousel
+        # the augmentation carrousel
+        apply_flip = random.choice([True, False])
         rot_range = 30
         shift_range = 30
         stretch_range = [1.1, 1.5, 2]
@@ -115,13 +116,15 @@ class VerseDataset():
 
         # Image is resized here, but heatmaps are resized to corresponding shape since the resize messes with the label values
         itk_img_arr_resize = transform.resize(itk_img_arr, self.input_shape, mode='edge')
-        itk_img_arr_aug = augment_rotate(itk_img_arr_resize, rand_axis_rotate, rand_rotate_angle)
+        itk_img_arr_aug = augment_flip(itk_img_arr_resize, apply_flip)
+        itk_img_arr_aug = augment_rotate(itk_img_arr_aug, rand_axis_rotate, rand_rotate_angle)
         itk_img_arr_aug = augment_shift(itk_img_arr_aug, rand_axis_shift, rand_shift_distance)
         itk_img_arr_aug = augment_stretch(itk_img_arr_aug, stretch_factors=stretch_range)
 
         heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
         # augment heatmap likewise
         for i in range(self.n_classes):
+            heatmap[i] = augment_flip(heatmap[i], apply_flip)
             heatmap[i] = augment_rotate(heatmap[i], rand_axis_rotate, rand_rotate_angle)
             heatmap[i] = augment_shift(heatmap[i], rand_axis_shift, rand_shift_distance)
             heatmap[i] = augment_stretch(heatmap[i], stretch_factors=stretch_range)
