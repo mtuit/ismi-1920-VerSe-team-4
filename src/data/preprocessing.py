@@ -122,23 +122,25 @@ def myresize(image, new_shape):
     reshaped_image = image[x:x + new_shape[0], y:y + new_shape[1], z:z + new_shape[2]]
     return reshaped_image
 
-# not used yet
-def augment_flip(image):
+def augment_flip(image, apply_flip):
     """
     Create an augmented image by mirroring in sagittal plane.
 
     Args:
         image (numpy.ndarray): Image array .
+        apply_flip (bool): Whether to flip or not
 
     Returns:
-        A numpy.ndarray with first dimension (or x, sagittal) of the original image inverted.
+        A numpy.ndarray with last dimension (or x, sagittal) of the original image inverted if required
     """
 
-    flipped_image = np.flip(image, 2)
+    if(apply_flip):
+        output_image = np.flip(image, 2)
+    else: 
+        output_image = image
+        
+    return output_image
 
-    return flipped_image
-
-# not used yet
 def augment_rotate(image, axis, degrees):
     """
     Create a rotated image, the image corners are padded with values of the image edge
@@ -160,7 +162,6 @@ def augment_rotate(image, axis, degrees):
 
     return rotated_image
 
-# not used yet
 def augment_shift(image, ax, distance):
     """
     Create an image that is moved by some pixels, padding the empty side with edge values
