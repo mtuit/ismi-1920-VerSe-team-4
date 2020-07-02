@@ -5,7 +5,7 @@ import tensorflow as tf
 import SimpleITK as sitk
 
 #from src.models.train_model import train_u_net
-from src.data.preprocessing import generate_heatmap, augment_stretch, augment_shift, augment_rotate, augment_flip
+from src.data.preprocessing import generate_heatmap, augment_stretch, augment_shift, augment_rotate, augment_flip, histogram_match
 
 
 from skimage import transform

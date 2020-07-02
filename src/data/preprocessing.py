@@ -227,7 +227,7 @@ def histogram_match(image, reference):
     return match_histograms(image, reference, multichannel=False)
 
   
-def augment_stretch(image, stretch_factors=(1,1,1)):
+def augment_stretch(image, stretch_factors=(1,1,1), debug=False):
     
     """
     Create an image that is stretched, and cropped to fit the same shape (e.g. zoomed)
