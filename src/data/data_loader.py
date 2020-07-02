@@ -121,11 +121,12 @@ class VerseDataset():
 
         heatmap = generate_heatmap(itk_centroid_arr, self.input_shape, self.n_classes, debug=False)
         # augment heatmap likewise
-        for i in range(self.n_classes)
+        for i in range(self.n_classes):
             heatmap[i] = augment_rotate(heatmap[i], rand_axis_rotate, rand_rotate_angle)
             heatmap[i] = augment_shift(heatmap[i], rand_axis_shift, rand_shift_distance)
             heatmap[i] = augment_stretch(heatmap[i], stretch_factors=stretch_range)
 
+        heatmap = np.moveaxis(heatmap, 0, -1)
         # return (itk_img_arr_resize, heatmap)
         return (itk_img_arr_aug, heatmap)
 

@@ -1,9 +1,10 @@
 import numpy as np
 import scipy
 import time
+import math
 
 from scipy import signal, ndimage, misc, stats
-from skimage.transform import resize
+from skimage.transform import resize, rescale
 from skimage.exposure import match_histograms
 import matplotlib.pyplot as plt
 
@@ -241,7 +242,7 @@ def augment_stretch(image, stretch_factors=(1,1,1)):
     assert((stretch_factors[0]>=1) & (stretch_factors[1]>=1) & (stretch_factors[2]>=1))
     
     
-    expanded_image = tr.rescale(image.astype(float), stretch_factors, mode='edge')
+    expanded_image = rescale(image.astype(float), stretch_factors, mode='edge')
     
     shape = np.shape(image)
     newshape = np.shape(expanded_image)
@@ -253,9 +254,9 @@ def augment_stretch(image, stretch_factors=(1,1,1)):
     stretched_image = expanded_image[math.ceil(diff0/2):newshape[0]-math.floor(diff0/2),
                                      math.ceil(diff1/2):newshape[1]-math.floor(diff1/2),
                                      math.ceil(diff2/2):newshape[2]-math.floor(diff2/2)]
-    
-    print(shape,newshape,np.shape(stretched_image))
-    print(diff0,diff1,diff2)
+    if debug:
+        print(shape,newshape,np.shape(stretched_image))
+        print(diff0,diff1,diff2)
     assert(np.shape(stretched_image)==shape)
     
     return stretched_image
