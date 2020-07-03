@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 
 
 def generate_heatmap(centroid_array, heatmap_size, n_classes, sigma=20.0, debug=False):
+    """
+    creates a heatmap for each vertebrae
+    """
+
     heatmap = []
     number_of_vertebrae = n_classes
     

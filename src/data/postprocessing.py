@@ -15,11 +15,11 @@ from skimage import transform
 
 
 
-"""
-    This function visualizes the centroid mask (true) and the output heatmap (pred)
-    Channels First on the output heatmap, path variable + extension
-"""
 def visualize_graph(path, prediction, threshold = 0.5):
+    """
+        This function visualizes the centroid mask (true) and the output heatmap (pred)
+        Channels First on the output heatmap, path variable + extension
+    """
     itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/centroid_masks/", path))
     results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
@@ -36,10 +36,10 @@ def visualize_graph(path, prediction, threshold = 0.5):
     plt.show()
 
 
-"""
-Visualize the output from a model (batch size = 1)
-"""
 def visualize(results_true, prediction, threshold = 0.5):
+    """
+    Visualize the output from a model (batch size = 1)
+    """
     #itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/images/", path))
     #results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
@@ -77,21 +77,23 @@ def distances(path, heatmaps, threshold = 0.5):
             dist = int(np.linalg.norm(np.array(coord_true) - np.array(coord_pred)))
             output += "\t dist: {}".format(dist)
       
-"""
-    input is single heatmap
-    location is extracted with the argmax policy
-"""
+
 def _single_heatmap_to_loc(heatmap, goalshape):
+    """
+        input is single heatmap
+        location is extracted with the argmax policy
+    """
     # upscaling of the image back to its original shape:
     heatmap_upscale = transform.resize(heatmap, goalshape)
     x = np.unravel_index(heatmap_upscale.argmax(), heatmap_upscale.shape)
     return x
 
-"""
-    input is 25-dim heatmap
-    returns list of predicted locations of vertebrae
-"""
+
 def _get_locations_output(heatmap, goalshape, threshold, return_labels=False):
+    """
+        input is 25-dim heatmap
+        returns list of predicted locations of vertebrae
+    """
     locations = []
     for index, hm in enumerate(np.rollaxis(heatmap, 3)):
         if np.max(hm) > threshold:
@@ -105,11 +107,12 @@ def _get_locations_output(heatmap, goalshape, threshold, return_labels=False):
                 
     return locations
 
-"""
-    input: original labels
-    returns locations of ground truth
-"""
+
 def _get_locations_labels(labels):
+    """
+        input: original labels
+        returns locations of ground truth
+    """
     locations = []
     for x in range(25):
         labels_one_hot = np.where(labels == x+1, 1, 0)
@@ -138,10 +141,11 @@ def _set_truth_plot(ax, results_true):
     ax.scatter(xs_lbl, ys_lbl, zs_lbl)
     return (xs_lbl, ys_lbl, zs_lbl)
     
-"""
-    Changes scale symmetrically of axis of Axes3d object for 3d data 
-"""
+
 def _set_dims(ax, xs,ys,zs):
+    """
+        Changes scale symmetrically of axis of Axes3d object for 3d data
+    """
     x_size = np.max(xs) - np.min(xs)
     y_size = np.max(ys) - np.min(ys)
     z_size = np.max(zs) - np.min(zs)
@@ -163,15 +167,3 @@ if __name__ == '__main__':
     #visualize_graph("verse005.mha", prediction, threshold = 0.5)
     #distances("verse005.mha", prediction, threshold = 0.5)
     visualize("verse007.mha", prediction, threshold = 0.5)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    

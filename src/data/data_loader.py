@@ -43,6 +43,9 @@ class VerseDataset():
         
 
     def get_dataset(self, purpose):
+        """
+            Selects the right generator
+        """
         if purpose == 'train':
             return self._get_dataset_from_generator(self._get_train_generator)
         elif purpose == 'validation':
@@ -95,6 +98,9 @@ class VerseDataset():
 
             
     def _generate_input_tuple(self, data_element):
+        """
+            Generates pairs of preprocessed images and heatmaps
+        """
         itk_img = sitk.ReadImage(os.path.join(os.path.join(self.base_path, 'images'), data_element))
         itk_centroid = sitk.ReadImage(os.path.join(os.path.join(self.base_path, 'centroid_masks'), data_element))
     
@@ -157,6 +163,10 @@ class VerseDataset():
         Args:
             images (list): paths to images
             centroids (list): paths to centroid masks
+        Returns:
+            train (list): paths to train images
+            validation (list): paths to validation images
+            test (list): paths to test images
         """
    
         # Get test images from images list. Test images are images for which a centroid mask does NOT exist
