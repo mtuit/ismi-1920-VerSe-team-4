@@ -164,9 +164,9 @@ class VerseDataset():
             images (list): paths to images
             centroids (list): paths to centroid masks
         Returns:
-            train (list): paths to train images
-            validation (list): paths to validation images
-            test (list): paths to test images
+            train (list): list of train images files names
+            validation (list): list of validation images files names
+            test (list): list of test images files names
         """
    
         # Get test images from images list. Test images are images for which a centroid mask does NOT exist
