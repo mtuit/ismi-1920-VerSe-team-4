@@ -2,7 +2,7 @@ import argparse
 from src.data.data_loader import VerseDataset
 from src.models.train_model import train_u_net
 from src.models.model import get_model
-from src.models.predict_model import predict_test_set
+from src.models.predict_model import predict
 import os
 
 
@@ -56,7 +56,7 @@ if __name__ == '__main__':
     BASE_PATH_NORMALIZED = 'data/processed/normalized-images'
 
     if args.prediction:
-        # use main to predict a serie of test files. See predict_test_set doc-string for more info
+        # use main to predict a serie of test files. See predict doc-string for more info
         assert args.image != '', "no path prediction image, use -im"
         # get model dir
         image_list = os.listdir(args.image)
@@ -67,7 +67,7 @@ if __name__ == '__main__':
         # predict
         p_model = get_model()
         p_model.load_weights(predict_model_path)
-        predict_test_set(p_model, image_list)
+        predict(p_model, image_list)
         # find saved files in 'models/predictions'
     else:
         # generate training and validation data
