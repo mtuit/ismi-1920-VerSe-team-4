@@ -1,6 +1,7 @@
 import argparse
 from src.data.data_loader import VerseDataset
 from src.models.train_model import train_u_net
+from src.models.model import get_model
 from src.models.predict_model import predict_test_set
 import os
 
@@ -26,7 +27,7 @@ def handle_arguments():
                                                                            'default model is most recent one')
     #TODO: subparser usage
     parser.add_argument('-id', '--image', type=str, default='', help='path to image-dir you want predictions on')
-    parser.add_argument('-m', '--model', type=str, default='default', help='path to model you want to use')
+    parser.add_argument('-m', '--model', type=str, default='default', help='path to model you want to use, default: default model trained without augmentation')
     parser.add_argument('-e', '--epochs', type=int, default=50, help='number '
                                                                      'of iterations over training data, default: 50')
     parser.add_argument('-f', '--fraction', type=float, default=0.8, help='fraction '
@@ -60,11 +61,13 @@ if __name__ == '__main__':
         # get model dir
         image_list = os.listdir(args.image)
         if args.model == 'default':
-            predict_model = 'models/default.h5'
+            predict_model_path = 'models/default.h5'
         else:
-            predict_model = args.model
+            predict_model_path = args.model
         # predict
-        predict_test_set(predict_model, image_list)
+        p_model = get_model()
+        p_model.load_weights(predict_model_path)
+        predict_test_set(p_model, image_list)
         # find saved files in 'models/predictions'
     else:
         # generate training and validation data
