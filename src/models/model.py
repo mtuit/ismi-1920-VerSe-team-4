@@ -3,12 +3,18 @@ import tensorflow as tf
 
 
 def get_model(loss=keras.losses.MeanSquaredError(), optimizer=keras.optimizers.Adam(), metrics=[keras.metrics.MeanSquaredError()]):
+    """
+        Loads and compiles the model
+    """
     model = unet3D_model()
     model.compile(loss=loss, optimizer=optimizer, metrics=[metrics])
     return model
 
 
 def unet3D_model(input_shape=(128, 64, 64), num_classes=25, num_layers=3, filters=8, output_activation="sigmoid"):
+    """
+        Builds the model
+    """
     inputs = tf.keras.Input(shape=input_shape)
     x = tf.expand_dims(inputs, -1)
 
@@ -37,6 +43,9 @@ def unet3D_model(input_shape=(128, 64, 64), num_classes=25, num_layers=3, filter
     
 
 def conv3d_block(inputs, filters, mode, padding="same", activation="relu"):
+    """
+        Builds the convolutional blocks
+    """
     if mode == "up":
         filters //= 2
     
