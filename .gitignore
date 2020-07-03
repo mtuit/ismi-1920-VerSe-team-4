@@ -6,7 +6,7 @@ data/raw/training_data/*_snapshot.png
 data/processed/normalized-images/centroid_masks/*.mha
 data/processed/normalized-images/images/*.mha
 
-*.h5
+model*.h5
 
 logs/
 # Byte-compiled / optimized / DLL files
