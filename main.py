@@ -47,7 +47,7 @@ if __name__ == '__main__':
     
     training_dataset = verse_dataset.get_dataset('train').batch(args.batch_size)
     validation_dataset = verse_dataset.get_dataset('validation').batch(args.batch_size)
-      
+    
     train_u_net(training_dataset, validation_dataset, args.epochs, args.steps_per_epoch)
     
     print("--DONE--")
