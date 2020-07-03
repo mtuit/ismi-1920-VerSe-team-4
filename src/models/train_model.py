@@ -36,7 +36,7 @@ def train_u_net(train_gen, val_gen, epochs, steps_per_epoch=None, validation_set
 #     u_model = get_model(weight_path)
     u_model = get_model()
 #     latest_weights = tf.train.latest_checkpoint('models/temp')
-    latest_weights = 'models/temp/model_09-0.19.h5' #lowest loss
+    latest_weights = 'models/temp/model_05.h5' #lowest loss
     print('latest weights: ')
     print(latest_weights)
     u_model.load_weights(latest_weights)

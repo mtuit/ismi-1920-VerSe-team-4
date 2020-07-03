@@ -29,15 +29,16 @@ def predict_test_set(model, test_set, base_path='data/processed/normalized-image
         img_array = sitk.GetArrayFromImage(img)
         hist_img = histogram_match(img_array, ref_img_arr)
         img_resized = transform.resize(hist_img, input_shape)
-        y_true = sitk.ReadImage(os.path.join(base_path, 'centroid_masks', file))
 
-        y_true = sitk.GetArrayFromImage(y_true)
-        y_true = generate_heatmap(y_true, y_true.shape, n_classes=25, debug=True)
-        y_true = np.expand_dims(y_true, 0)
+        # y_true = sitk.ReadImage(os.path.join(base_path, 'centroid_masks', file))
+
+        # y_true = sitk.GetArrayFromImage(y_true)
+        # y_true = generate_heatmap(y_true, y_true.shape, n_classes=25, debug=True)
+        # y_true = np.expand_dims(y_true, 0)
         
         y_pred = model.predict(np.expand_dims(img_resized, 0))
 
-        visualize(img_array, y_true, threshold=0.5)
+        visualize(img_array, y_pred, threshold=0.5)
 
         locations = _get_locations_output(y_pred, img_array.shape, threshold=0.5, return_labels=True)
         
