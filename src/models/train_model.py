@@ -34,12 +34,12 @@ def train_u_net(train_gen, val_gen, epochs, steps_per_epoch=None, validation_set
     """
     weight_path = 'models/temp/model_{epoch:02d}-{val_loss:.2f}.h5'  # TODO: needs change
     test = datetime.now().strftime("%Y%m%d-%H%M%S")
-    log_dir = 'logs/fit/' + datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_dir = 'logs'
 
 #     u_model = get_model(weight_path)
     u_model = get_model()
 #     latest_weights = tf.train.latest_checkpoint('models/temp')
-    latest_weights = 'models/temp/model_05.h5' #lowest loss
+    latest_weights = 'models/default.h5' #lowest loss
     print('latest weights: ')
     print(latest_weights)
     u_model.load_weights(latest_weights)
