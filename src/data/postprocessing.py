@@ -43,17 +43,20 @@ def visualize(results_true, prediction, threshold = 0.5):
     #itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/images/", path))
     #results_true = np.array(sitk.GetArrayFromImage(itkimg1))
     fig = plt.figure()
-    coords = _get_locations_output(prediction[0], results_true.shape, threshold = 0.5)
-    average = [a_tuple[2] for a_tuple in coords]
-    average = sum(average)/len(average)
-    locs = [(a_tuple[0],a_tuple[1]) for a_tuple in coords]
-    #x,y = zip(*locs)
-    for (x,y) in locs:
-        plt.scatter(y,x)
-        
-    plt.imshow(results_true[:,:, int(average)])
-    plt.show()
-    
+    coords = _get_locations_output(prediction[0], results_true.shape, threshold = 0.1)
+    print(coords)
+    if len(coords) != 0:
+        average = [a_tuple[2] for a_tuple in coords]
+        average = sum(average)/len(average)
+        locs = [(a_tuple[0],a_tuple[1]) for a_tuple in coords]
+        for i, (x,y) enumerate(locs):
+            plt.scatter(x,y)
+            plt.labels('v', i)
+#         for (x,y) in locs:
+#             plt.scatter(y,x)
+        plt.imshow(results_true[:,:, int(average)])
+        plt.rollaxis
+        plt.show()
 
 def distances(path, heatmaps, threshold = 0.5):
     itkimg1 = sitk.ReadImage(os.path.join("data/processed/normalized-images/centroid_masks/", path))
